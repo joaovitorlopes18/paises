@@ -5,6 +5,7 @@ const fs = require('fs');
 const pathToFile = __dirname + '/paises.json';
 
 http.createServer((req, res) => {
+
   if (req.url === '/paises') {
     // Define o cabeçalho da resposta para JSON
     res.setHeader('Content-Type', 'application/json');
@@ -22,16 +23,23 @@ http.createServer((req, res) => {
       // Analisa o conteúdo JSON
       const paises = JSON.parse(data);
 
-      //slice
-      var primeirospaises  = paises.slice(0, 20);
+      var primeiros20paises = [];
 
-      // Gera a resposta HTTP com o conteúdo JSON
+      paises.forEach((element, index) => { // Adiciona um parâmetro "index" à função forEach
+
+        if (index < 20) { // Verifica se o índice é menor que 20
+          primeiros20paises.push(element.nome_pais);
+        }
+
+      });
+
+      // Gera a resposta HTTP com o conteúdo JSON contendo apenas os primeiros 20 países
       res.statusCode = 200;
-      res.end(JSON.stringify(paises));
+      res.end(JSON.stringify(primeiros20paises));
     });
-  } 
-  
-  if (req.url === '/paisescomb') {
+  }
+
+  else if (req.url === '/paisescomb') {
     // Define o cabeçalho da resposta para JSON
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -48,32 +56,40 @@ http.createServer((req, res) => {
       // Analisa o conteúdo JSON
       const paises = JSON.parse(data);
 
-      //forEach
-      
       var paisescomb = [];
 
-      paises.array.forEach(element => {
+      paises.forEach(element => {
 
-         var nomeTemporario=element.nome_pais;
+        var nometemporario = element.nome_pais;
 
-         nomeTemporario =  String(nomeTemporario);
-         
-        var primeiraLetra = nomeTemporario.substr(0,1);
+        nometemporario = String(nometemporario);
 
-        if(primeiraLetra == "B"){
+        var primeiraletra = nometemporario.substr(0,1);
+
+        if(primeiraletra == "B"){
 
           paisescomb.push(element.nome_pais);
 
-          console.log(nomeTemporario);
+          console.log(nometemporario);
+          
         }
         
       });
 
       // Gera a resposta HTTP com o conteúdo JSON
       res.statusCode = 200;
-      res.end(JSON.stringify(paises));
+      res.end(JSON.stringify(paisescomb));
     });
+  } 
+  else {
+    // Se a URL não for /paises, envia o arquivo index.html
+    res.writeHead(200, {
+      'Content-Type': 'text/html',
+      'Access-Control-Allow-Origin' : '*'
+    });
+    let readStream = fs.createReadStream(__dirname + '/index.html');
+    readStream.pipe(res);
   }
-}).listen(8000);
+}).listen(5000);
 
-console.log('Visite-me em: http://localhost:8000');
+console.log('Visite-me em: http://localhost:5000');
